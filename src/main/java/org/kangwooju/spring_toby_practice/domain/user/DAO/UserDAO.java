@@ -1,17 +1,37 @@
 package org.kangwooju.spring_toby_practice.domain.user.DAO;
 
+import org.kangwooju.spring_toby_practice.Global.Config.ConnectionMaker;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
+import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
+import org.kangwooju.spring_toby_practice.domain.user.Service.SimpleConnectionMaker;
 
 import java.sql.*;
 
 public class UserDAO {
 
+    private ConnectionMaker ConnectionMaker;
+
+    public UserDAO(ConnectionMaker connectionMaker){
+        /*
+        this.simpleConnectionMaker = new SimpleConnectionMaker(); // 객체 생성하기
+         */
+        /*
+        this.ConnectionMaker = new DConnectionMaker(); // D사의 커넥션 로직으로 변경 -> DIP 위배
+         */
+        this.ConnectionMaker = connectionMaker; // 인터페이스를 받아오도록 로직 변경
+    }
+
+
+
+
     public void add(User user) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/Kangwooju", "root", "kanguju1102!"
-        );
+        /*
+        // DB를 연결하는 로직을 분리
+        Connection connection = simpleConnectionMaker.makeNewConnection();
+         */
+        Connection connection = ConnectionMaker.makeConnection();
 
         PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
@@ -30,9 +50,12 @@ public class UserDAO {
     public User get(String id) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/Kangwooju", "root", "kanguju1102!"
-        );
+        /*
+        // DB를 연결하는 로직을 분리
+        Connection connection = simpleConnectionMaker.makeNewConnection();
+         */
+        Connection connection = ConnectionMaker.makeConnection();
+
 
         PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM users WHERE id = ?"
