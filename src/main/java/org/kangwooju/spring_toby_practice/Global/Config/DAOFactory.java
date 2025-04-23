@@ -6,9 +6,28 @@ import org.kangwooju.spring_toby_practice.domain.user.DAO.UserDAO;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class DAOFactory {
+
+    @Bean
+    public DataSource dataSource(){
+        SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
+
+        /*
+        dataSource.getDriver(com.mysql.jdbc.Driver.class);
+        dataSource.getUrl(MYSQL_URL);// 환경변수 설정
+        dataSource.setUsername(MYSQL_USERNAME);// 환경변수 설정
+        dataSource.setPassword(MYSQL_PASSWORD);// 환경변수 설정
+
+
+         */
+        return dataSource;
+
+    }
 
     @Bean
     public UserDAO userDAO(){
@@ -21,8 +40,12 @@ public class DAOFactory {
 
         /*
         return new UserDAO(new DConnectionMaker()); // UserDAO 생성시에 DConnectionMaker를 받도록 설정
-         */
+
         return new UserDAO(connectionMaker());
+
+         */
+        UserDAO userDAO = new UserDAO(dataSource()); // DataSource 의존성 주입
+        return userDAO;
     }
 
     @Bean

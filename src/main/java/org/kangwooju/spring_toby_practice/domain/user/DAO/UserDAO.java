@@ -5,34 +5,35 @@ import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
 import org.kangwooju.spring_toby_practice.domain.user.Service.SimpleConnectionMaker;
 
+import javax.sql.DataSource;
 import java.sql.*;
 
 public class UserDAO {
 
-    private ConnectionMaker ConnectionMaker;
+    private DataSource dataSource;
 
-    public UserDAO(ConnectionMaker connectionMaker){
-        /*
-        this.simpleConnectionMaker = new SimpleConnectionMaker(); // 객체 생성하기
-         */
-        /*
-        this.ConnectionMaker = new DConnectionMaker(); // D사의 커넥션 로직으로 변경 -> DIP 위배
-         */
-        this.ConnectionMaker = connectionMaker; // 인터페이스를 받아오도록 로직 변경
+
+
+    public UserDAO(DataSource dataSource){
+        this.dataSource = dataSource;
     }
 
 
 
-
     public void add(User user) throws ClassNotFoundException, SQLException {
+
+        Connection connection = dataSource.getConnection(); // ConnectionMaker 대신 dataSource 인터페이스 사용
+        /*
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        /*
+
         // DB를 연결하는 로직을 분리
         Connection connection = simpleConnectionMaker.makeNewConnection();
-         */
+
         Connection connection = ConnectionMaker.makeConnection();
 
+
+         */
         PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
         );
@@ -54,7 +55,7 @@ public class UserDAO {
         // DB를 연결하는 로직을 분리
         Connection connection = simpleConnectionMaker.makeNewConnection();
          */
-        Connection connection = ConnectionMaker.makeConnection();
+        Connection connection = dataSource.getConnection();
 
 
         PreparedStatement ps = connection.prepareStatement(
