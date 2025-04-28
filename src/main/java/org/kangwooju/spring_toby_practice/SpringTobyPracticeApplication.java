@@ -11,11 +11,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class SpringTobyPracticeApplication {
 
     public static void main(String[] args) {
-        ApplicationContext context =
-                new AnnotationConfigApplicationContext(DAOFactory.class);
-        UserDAO userDAO = context.getBean("UserDAO", UserDAO.class);
-        //
-
         SpringApplication.run(SpringTobyPracticeApplication.class, args);
     }
 

@@ -4,6 +4,7 @@ import org.kangwooju.spring_toby_practice.Global.Config.ConnectionMaker;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
 import org.kangwooju.spring_toby_practice.domain.user.Service.SimpleConnectionMaker;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,12 +13,10 @@ public class UserDAO {
 
     private DataSource dataSource;
 
-
-
+    @Autowired
     public UserDAO(DataSource dataSource){
         this.dataSource = dataSource;
     }
-
 
 
     public void add(User user) throws ClassNotFoundException, SQLException {
