@@ -36,8 +36,4 @@ public class JdbcContext {
             if(connection != null){try {connection.close();} catch ( SQLException e ){}}
         }
     }
-
-
-
-
 }
