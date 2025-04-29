@@ -1,6 +1,7 @@
 package org.kangwooju.spring_toby_practice.Global.Config;
 
 import org.kangwooju.spring_toby_practice.domain.user.DAO.AccountDAO;
+import org.kangwooju.spring_toby_practice.domain.user.DAO.JdbcContext;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.MessageDAO;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.UserDAO;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
@@ -38,6 +39,10 @@ public class DAOFactory {
 
     }
 
+    public JdbcContext jdbcContext(){
+        return new JdbcContext(dataSource());
+    }
+
     @Bean
     public UserDAO userDAO(){
         /*
@@ -53,7 +58,7 @@ public class DAOFactory {
         return new UserDAO(connectionMaker());
 
          */
-        UserDAO userDAO = new UserDAO(dataSource()); // DataSource 의존성 주입
+        UserDAO userDAO = new UserDAO(dataSource(),jdbcContext()); // DataSource 의존성 주입
         return userDAO;
     }
 

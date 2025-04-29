@@ -13,10 +13,12 @@ import java.sql.*;
 public class UserDAO {
 
     private DataSource dataSource;
+    private JdbcContext jdbcContext;
 
     @Autowired
-    public UserDAO(DataSource dataSource){
+    public UserDAO(DataSource dataSource,JdbcContext jdbcContext){
         this.dataSource = dataSource;
+        this.jdbcContext = jdbcContext;
     }
 
 
@@ -61,6 +63,7 @@ public class UserDAO {
          */
 
 
+        /*
         // 로컬 클래스로 대체
         class AddStatement implements StatementStrategy {
 
@@ -78,7 +81,23 @@ public class UserDAO {
 
         StatementStrategy statementStrategy = new AddStatement();
         jdbcContextWithStatementStrategy(statementStrategy);
+         */
 
+        this.jdbcContext.workWithStatementStrategy(
+                new StatementStrategy() {
+                    @Override
+                    public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+                        PreparedStatement preparedStatement
+                                = connection.prepareStatement("INSERT INTO USERS(id,name,password) VALUES(?,?,?)");
+                        preparedStatement.setString(1, user.getId());
+                        preparedStatement.setString(2,user.getName());
+                        preparedStatement.setString(3,user.getPassword());
+
+                        return preparedStatement;
+                    }
+                }
+
+        );
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -112,9 +131,21 @@ public class UserDAO {
     }
 
     public void deleteAll() throws SQLException{
-        StatementStrategy statementStrategy = new DeleteAllStatement(); // DeleteAllStatement로 의존성 주입
-        jdbcContextWithStatementStrategy(statementStrategy); // 메소드에 statementStrategy 전달해서 삭제모듈 진행
+
+        // 익명 클래스로 변경
+        this.jdbcContext.workWithStatementStrategy(
+                new StatementStrategy() {
+                    @Override
+                    public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+                        return connection.prepareStatement("DELETE FROM USERS");
+                    }
+                }
+        );
     }
+
+
+
+    // JdbcContext 로 변경
     public void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) throws SQLException{
 
         /* 3장 템플릿 : try - catch - finally 도입 이유
@@ -125,7 +156,6 @@ public class UserDAO {
 
         ps.close();
         c.close();
-
          */
 
         Connection connection = null;
@@ -160,6 +190,4 @@ public class UserDAO {
         return preparedStatement;
     }
      */
-
-
 }
