@@ -9,10 +9,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 import javax.swing.plaf.nimbus.State;
 import java.sql.*;
+import java.util.List;
 
 public class UserDAO {
 
@@ -114,12 +116,14 @@ public class UserDAO {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
 
         /*
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+
         // DB를 연결하는 로직을 분리
-        Connection connection = simpleConnectionMaker.makeNewConnection();
-         */
+       // Connection connection = simpleConnectionMaker.makeNewConnection();
+
         Connection connection = dataSource.getConnection();
 
 
@@ -141,7 +145,37 @@ public class UserDAO {
         connection.close();
 
         return user;
+
+         */
+
+        return this.jdbcTemplate.queryForObject("SELECT * FROM USERS WHERE id = ?", new Object[]{id},
+                new RowMapper<User>() {
+                    @Override
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        User user = new User();
+                        user.setId(rs.getString("id"));
+                        user.setName(rs.getString("name"));
+                        user.setPassword(rs.getString("password"));
+                        return user;
+                    }
+                });
     }
+
+    // 모든 회원 정보를 가져오는 로직
+    public List<User> getAll(){
+        return this.jdbcTemplate.query("SELECT * FROM USERS ORDER BY id",
+                new RowMapper<User>() {
+                    @Override
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        User user = new User();
+                        user.setId(rs.getString("id"));
+                        user.setName(rs.getString("name"));
+                        user.setPassword(rs.getString("password"));
+                        return user;
+                    }
+                });
+    }
+
 
     public void deleteAll() throws SQLException{
         /*
@@ -161,9 +195,13 @@ public class UserDAO {
         this.jdbcTemplate.update("DELETE FROM USERS");
     }
 
+
     // JdbcTemplate을 이용한 getCount()
-    public int getCount() {
+    public int getCount1() {
+
         return this.jdbcTemplate.query(new PreparedStatementCreator() {
+
+
                                            @Override
                                            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                                                return con.prepareStatement("SELECT COUNT(*) FROM USERS");
@@ -175,15 +213,13 @@ public class UserDAO {
                                                return rs.getInt(1);
                                            }
                                        }
-
                                        /*
                                        1st. PreparedStatement로 쿼리 전달하기
                                        2nd. ResultSetExtractor를 통해 결과를 받기
                                         */
-
         );
-    }
 
+    }
 
 
     // JdbcContext 로 변경
