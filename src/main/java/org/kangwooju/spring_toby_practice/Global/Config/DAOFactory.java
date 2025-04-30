@@ -8,6 +8,7 @@ import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
@@ -39,28 +40,21 @@ public class DAOFactory {
 
     }
 
+    @Bean
     public JdbcContext jdbcContext(){
         return new JdbcContext(dataSource());
     }
 
     @Bean
-    public UserDAO userDAO(){
-        /*
-        ConnectionMaker connectionMaker = new DConnectionMaker();
-        UserDAO userDAO = new UserDAO(connectionMaker);
-        // 의존성을 주입해주는 로직
-        return userDAO;
-         */
-
-        /*
-        return new UserDAO(new DConnectionMaker()); // UserDAO 생성시에 DConnectionMaker를 받도록 설정
-
-        return new UserDAO(connectionMaker());
-
-         */
-        UserDAO userDAO = new UserDAO(dataSource(),jdbcContext()); // DataSource 의존성 주입
-        return userDAO;
+    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+        return new JdbcTemplate(dataSource);
     }
+
+    @Bean
+    public UserDAO userDAO(JdbcContext jdbcContext, JdbcTemplate jdbcTemplate, DataSource dataSource){
+        return new UserDAO(dataSource, jdbcContext, jdbcTemplate);
+    }
+
 
     @Bean
     public AccountDAO accountDAO(){

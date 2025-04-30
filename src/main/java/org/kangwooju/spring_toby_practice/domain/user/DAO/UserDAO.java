@@ -5,6 +5,10 @@ import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
 import org.kangwooju.spring_toby_practice.domain.user.Service.SimpleConnectionMaker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import javax.sql.DataSource;
 import javax.swing.plaf.nimbus.State;
@@ -15,10 +19,13 @@ public class UserDAO {
     private DataSource dataSource;
     private JdbcContext jdbcContext;
 
+    private JdbcTemplate jdbcTemplate;
+
     @Autowired
-    public UserDAO(DataSource dataSource,JdbcContext jdbcContext){
+    public UserDAO(DataSource dataSource,JdbcContext jdbcContext,JdbcTemplate jdbcTemplate){
         this.dataSource = dataSource;
         this.jdbcContext = jdbcContext;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
 
@@ -83,6 +90,7 @@ public class UserDAO {
         jdbcContextWithStatementStrategy(statementStrategy);
          */
 
+        /*
         this.jdbcContext.workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
@@ -98,6 +106,11 @@ public class UserDAO {
                 }
 
         );
+
+         */
+        // JdbcTemplate로 대체
+        this.jdbcTemplate.update("INSERT INTO USERS(id,name,password) VALUES (?,?,?)"
+                ,user.getId(),user.getName(),user.getPassword());
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -131,8 +144,9 @@ public class UserDAO {
     }
 
     public void deleteAll() throws SQLException{
+        /*
 
-        // 익명 클래스로 변경
+        // 익명 클래스로 변경 -> 템플릿&콜백 패턴
         this.jdbcContext.workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
@@ -140,6 +154,33 @@ public class UserDAO {
                         return connection.prepareStatement("DELETE FROM USERS");
                     }
                 }
+        );
+
+         */
+
+        this.jdbcTemplate.update("DELETE FROM USERS");
+    }
+
+    // JdbcTemplate을 이용한 getCount()
+    public int getCount() {
+        return this.jdbcTemplate.query(new PreparedStatementCreator() {
+                                           @Override
+                                           public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                                               return con.prepareStatement("SELECT COUNT(*) FROM USERS");
+                                           }
+                                       }, new ResultSetExtractor<Integer>() {
+                                           @Override
+                                           public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+                                               rs.next();
+                                               return rs.getInt(1);
+                                           }
+                                       }
+
+                                       /*
+                                       1st. PreparedStatement로 쿼리 전달하기
+                                       2nd. ResultSetExtractor를 통해 결과를 받기
+                                        */
+
         );
     }
 
