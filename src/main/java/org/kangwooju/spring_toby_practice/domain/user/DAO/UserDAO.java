@@ -222,7 +222,8 @@ public class UserDAO {
     }
 
 
-    // JdbcContext 로 변경
+
+    // JdbcContext 로 변경 -> 주석 변경
     public void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) throws SQLException{
 
         /* 3장 템플릿 : try - catch - finally 도입 이유
