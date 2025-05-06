@@ -3,7 +3,6 @@ package org.kangwooju.spring_toby_practice.domain.user.DAO;
 import org.kangwooju.spring_toby_practice.Global.Config.ConnectionMaker;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
-import org.kangwooju.spring_toby_practice.domain.user.Service.SimpleConnectionMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
