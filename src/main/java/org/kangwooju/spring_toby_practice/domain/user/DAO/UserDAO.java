@@ -29,6 +29,18 @@ public class UserDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private RowMapper<User> userRowMapper =
+            new RowMapper<User>() {
+                @Override
+                public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    User user= new User();
+                    user.setName(rs.getString("name"));
+                    user.setId(rs.getString("id"));
+                    user.setPassword(rs.getString("password"));
+                    return user;
+                }
+            };
+
 
     public void add(final User user) throws ClassNotFoundException, SQLException {
 
@@ -162,17 +174,7 @@ public class UserDAO {
 
     // 모든 회원 정보를 가져오는 로직
     public List<User> getAll(){
-        return this.jdbcTemplate.query("SELECT * FROM USERS ORDER BY id",
-                new RowMapper<User>() {
-                    @Override
-                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
-                        return user;
-                    }
-                });
+        return this.jdbcTemplate.query("SELECT * FROM USERS ORDER BY id", this.userRowMapper);
     }
 
 
@@ -188,10 +190,11 @@ public class UserDAO {
                     }
                 }
         );
-
          */
 
-        this.jdbcTemplate.update("DELETE FROM USERS");
+        // excuteSql("DELETE FROM USERS"); // -> excuteSql 메소드를 통해 변하는 SQL 문장을 설정
+        // this.jdbcContext.excuteSql("DELETE FROM USERS");
+        this.jdbcTemplate.update("DELETE FROM USERS"); // JDBC가 지원하는 Template 사용
     }
 
 
@@ -267,4 +270,15 @@ public class UserDAO {
         return preparedStatement;
     }
      */
+
+
+    // 템플릿&콜백 에서 변하지 않는 콜백 클래스 생성
+    private void excuteSql(final String query) throws SQLException{
+        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+                return connection.prepareStatement(query);
+            }
+        });
+    }
 }
