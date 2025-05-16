@@ -3,6 +3,7 @@ package org.kangwooju.spring_toby_practice.domain.user.Service;
 import lombok.Data;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import javax.mail.*;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -12,6 +13,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 @Service
 public class UserService {
@@ -26,9 +28,6 @@ public class UserService {
     // 1st. PlatFormTransactionManager 을 DI한 후 @Autowired를 통해 오브젝트 가져오기
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
-
-
-
 
 
 
@@ -69,7 +68,14 @@ public class UserService {
                     // 5th. PrepareedStatement.close(); // PreparedStatement 비우기
 
                 }
-            }
+    }
+
+    private void sendEmail(User user){
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host","mail.ksug.org");
+        Session session = Session.getInstance(properties,null);
+
+    }
 
 
 

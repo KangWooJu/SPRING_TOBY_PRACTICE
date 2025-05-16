@@ -5,6 +5,7 @@ import org.kangwooju.spring_toby_practice.domain.user.DAO.JdbcContext;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.MessageDAO;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.UserDAO;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
+import org.kangwooju.spring_toby_practice.domain.user.Service.UserDAOJdbc;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +41,11 @@ public class DAOFactory {
 
         return dataSource;
 
+    }
+
+    @Bean
+    public UserDAOJdbc userDAOJdbc(){
+        return new UserDAOJdbc(dataSource());
     }
 
     @Bean
