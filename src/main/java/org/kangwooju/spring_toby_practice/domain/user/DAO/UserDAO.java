@@ -33,10 +33,12 @@ public class UserDAO {
             new RowMapper<User>() {
                 @Override
                 public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    User user= new User();
-                    user.setName(rs.getString("name"));
-                    user.setId(rs.getString("id"));
-                    user.setPassword(rs.getString("password"));
+                    User user = User.builder()
+                            .name(rs.getString("user_name"))
+                            .password(rs.getString("user_password"))
+                            .email(rs.getString("user_email"))
+                            .build();
+
                     return user;
                 }
             };
@@ -159,22 +161,43 @@ public class UserDAO {
 
          */
 
-        return this.jdbcTemplate.queryForObject("SELECT * FROM USERS WHERE id = ?", new Object[]{id},
+        return this.jdbcTemplate.queryForObject("SELECT * FROM USERS WHERE id = ?",
+                new Object[]{id},
                 new RowMapper<User>() {
                     @Override
                     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
+                        User user = User.builder()
+                                .name(rs.getString("user_name"))
+                                .password(rs.getString("user_password"))
+                                .email(rs.getString("user_email"))
+                                .build();
+
                         return user;
                     }
                 });
     }
 
-    // 모든 회원 정보를 가져오는 로직
+    // 모든 회원 정보를 가져오는 로직 -> 빌더 패턴 + 템플릿 메소드
     public List<User> getAll(){
-        return this.jdbcTemplate.query("SELECT * FROM USERS ORDER BY id", this.userRowMapper);
+        //return this.jdbcTemplate.query("SELECT * FROM USERS ORDER BY id", this.userRowMapper);
+
+        List<User> users = jdbcTemplate.query(
+                "SELECT user_id, user_name FROM USERS",
+                new RowMapper<User>() {
+                    @Override
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+                        User user = User.builder()
+                                .name(rs.getString("user_name"))
+                                .id(rs.getString("user_id"))
+                                .password(rs.getString("user_password"))
+                                .build();
+
+                        return user;
+                    }
+                }
+        );
+        return users;
     }
 
 
@@ -194,7 +217,21 @@ public class UserDAO {
 
         // excuteSql("DELETE FROM USERS"); // -> excuteSql 메소드를 통해 변하는 SQL 문장을 설정
         // this.jdbcContext.excuteSql("DELETE FROM USERS");
+        /*this.jdbcTemplate.update(
+                new PreparedStatementCreator() {
+                    @Override
+                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                        return con.prepareStatement("DELETE FROM USERS");
+                    }
+                }
+        ); // 익명 클래스로 JdbcTemplate 구성
+
+         */
+
+        // 람다식으로 jdbcTemplate 구성
+        //this.jdbcTemplate.update(con->con.prepareStatement("DELETE FROM USERS"));
         this.jdbcTemplate.update("DELETE FROM USERS"); // JDBC가 지원하는 Template 사용
+
     }
 
 
