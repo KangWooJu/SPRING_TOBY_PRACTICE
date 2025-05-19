@@ -5,7 +5,10 @@ import org.kangwooju.spring_toby_practice.domain.user.DAO.JdbcContext;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.MessageDAO;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.UserDAO;
 import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
+import org.kangwooju.spring_toby_practice.domain.user.Service.Interface.UserService;
 import org.kangwooju.spring_toby_practice.domain.user.Service.UserDAOJdbc;
+import org.kangwooju.spring_toby_practice.domain.user.Service.UserServiceImpl;
+import org.kangwooju.spring_toby_practice.domain.user.Service.UserServiceTx;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -97,5 +100,14 @@ public class DAOFactory {
     @Bean
     public ConnectionMaker connectionMaker(){
         return new DConnectionMaker();
+    }
+
+
+    // AOP를 위한 분리
+    @Bean
+    public UserService userService(){
+        UserServiceImpl userService = new UserServiceImpl();
+
+        return new UserServiceTx(platformTransactionManager(dataSource()),userService);
     }
 }
