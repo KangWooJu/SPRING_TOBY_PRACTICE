@@ -2,6 +2,7 @@ package org.kangwooju.spring_toby_practice.domain.user.Service;
 
 import com.sun.mail.util.MessageRemovedIOException;
 import lombok.Data;
+import org.kangwooju.spring_toby_practice.domain.user.Entity.Level;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.mail.*;
@@ -110,16 +111,30 @@ public class UserService {
      */
 
     // Spring에서 제공하는 JavaMailSender 인터페이스 -> DI를 통해 Host 정보등록
+    // DB 작업이 있는 경우 !!
     private void sendUpgradeEmail(User user){
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setFrom("mail.ex.com");
-        mailMessage.setSubject("메일 전송 예시");
-        mailMessage.setText("안에 들어갈 텍스트");
+        TransactionStatus transactionStatus = platformTransactionManager.getTransaction(new DefaultTransactionDefinition());
 
-        javaMailSender.send(mailMessage);
+        try{
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(user.getEmail());
+            mailMessage.setFrom("mail.ex.com");
+            mailMessage.setSubject("메일 전송 예시");
+            mailMessage.setText("안에 들어갈 텍스트");
 
+            javaMailSender.send(mailMessage);
+            // GOLD로 바꾸는 로직이 추가 되는 경우 -> SRP 위반이긴 하나 만약 DB에 접근하는 로직일 경우.....
+            user = User.builder()
+                    .level(Level.GOLD)
+                    .build();
+
+            platformTransactionManager.commit(transactionStatus);
+
+        }catch ( RuntimeException e ){
+            platformTransactionManager.rollback(transactionStatus);
+            throw e;
+        }
     }
 
 }
