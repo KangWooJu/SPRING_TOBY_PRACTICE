@@ -13,6 +13,7 @@ public class User {
     String id;
     String name;
     String password;
+    String email;
 
     Level level;
 
