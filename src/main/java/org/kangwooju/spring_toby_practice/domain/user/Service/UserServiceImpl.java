@@ -1,33 +1,21 @@
 package org.kangwooju.spring_toby_practice.domain.user.Service;
 
-import com.sun.mail.util.MessageRemovedIOException;
-import lombok.Data;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.Level;
 import org.kangwooju.spring_toby_practice.domain.user.Entity.User;
+import org.kangwooju.spring_toby_practice.domain.user.Service.Interface.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import javax.mail.*;
 
-import org.springframework.boot.web.server.MimeMappings;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
-import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Properties;
 
 @Service
-public class UserService {
+public class UserServiceImpl implements UserService {
 
 
     private User user;
@@ -45,7 +33,7 @@ public class UserService {
 
 
 
-    public void upgradeLevels() throws Exception{
+    public void upgradeLevels(User user) throws Exception{
 
         /* 트랜잭션 추상화 전
         TransactionSynchronizationManager.initSynchronization();
@@ -53,20 +41,20 @@ public class UserService {
         connection.setAutoCommit(false); -> 자동 커밋 끄기
          */
 
-        // 2nd. TransactionStatus를 통해 트렌잭션 가져오기
-        TransactionStatus status = platformTransactionManager.getTransaction(new DefaultTransactionDefinition());
+        // 2nd. TransactionStatus를 통해 트렌잭션 가져오기 -> AOP 도입으로 삭제
+
 
         // 기타 로직
         try{
 
             // connection.commit(); -> 추상화 도입전
             // 기타로직
-            platformTransactionManager.commit(status);
+
 
         } catch ( RuntimeException e ){
             // 에러 처리 로직
             //connection.rollback();
-            platformTransactionManager.rollback(status);
+
             throw e;
 
         } finally {
@@ -112,9 +100,8 @@ public class UserService {
 
     // Spring에서 제공하는 JavaMailSender 인터페이스 -> DI를 통해 Host 정보등록
     // DB 작업이 있는 경우 !!
-    private void sendUpgradeEmail(User user){
+    public void sendUpgradeEmail(User user){
 
-        TransactionStatus transactionStatus = platformTransactionManager.getTransaction(new DefaultTransactionDefinition());
 
         try{
             SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -129,10 +116,8 @@ public class UserService {
                     .level(Level.GOLD)
                     .build();
 
-            platformTransactionManager.commit(transactionStatus);
 
         }catch ( RuntimeException e ){
-            platformTransactionManager.rollback(transactionStatus);
             throw e;
         }
     }
