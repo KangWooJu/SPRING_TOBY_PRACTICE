@@ -10,11 +10,11 @@ import lombok.Getter;
 @Builder
 public class User {
 
-    String id;
-    String name;
-    String password;
-    String email;
+    private String id;
+    private String name;
+    private String password;
+    private String email;
 
-    Level level;
+    private Level level;
 
 }
