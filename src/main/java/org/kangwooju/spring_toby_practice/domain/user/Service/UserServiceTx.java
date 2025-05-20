@@ -21,6 +21,11 @@ public class UserServiceTx implements UserService {
 
     private User user;
 
+    public UserServiceTx(PlatformTransactionManager platformTransactionManager, UserServiceImpl userService) {
+        this.platformTransactionManager = platformTransactionManager;
+        this.userService = userService;
+    }
+
 
     @Override
     public void upgradeLevels(User user) throws Exception {
