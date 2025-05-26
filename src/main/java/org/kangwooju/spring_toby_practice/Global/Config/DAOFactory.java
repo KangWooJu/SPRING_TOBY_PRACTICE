@@ -4,11 +4,8 @@ import org.kangwooju.spring_toby_practice.domain.user.DAO.AccountDAO;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.JdbcContext;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.MessageDAO;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.UserDAO;
-import org.kangwooju.spring_toby_practice.domain.user.Service.DConnectionMaker;
+import org.kangwooju.spring_toby_practice.domain.user.Service.*;
 import org.kangwooju.spring_toby_practice.domain.user.Service.Interface.UserService;
-import org.kangwooju.spring_toby_practice.domain.user.Service.UserDAOJdbc;
-import org.kangwooju.spring_toby_practice.domain.user.Service.UserServiceImpl;
-import org.kangwooju.spring_toby_practice.domain.user.Service.UserServiceTx;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +17,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Proxy;
 
 @Configuration
 public class DAOFactory {
@@ -110,4 +108,29 @@ public class DAOFactory {
 
         return new UserServiceTx(platformTransactionManager(dataSource()),userService);
     }
+
+    /*
+    @Bean
+    public Hello hello(){
+        return new HelloTarget(); // 타켓 생성
+    }
+
+     */
+
+    @Bean
+    public HelloUppercase helloUppercase(){
+        return new HelloUppercase(hello()); // 데코레이팅 생성
+    }
+
+    // 다이나믹 프록시 도입 ->
+    @Bean
+    public Hello hello(){
+        Hello hello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[] { Hello.class },
+                new UppercaseHandler(new HelloTarget()));
+
+        return hello;
+    }
+
 }
