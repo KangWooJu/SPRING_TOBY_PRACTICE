@@ -103,12 +103,15 @@ public class DAOFactory {
 
 
     // AOP를 위한 분리
+    /* 수동 데코레이터 패턴으로 연결
     @Bean
     public UserService userService(){
         UserServiceImpl userService = new UserServiceImpl();
 
         return new UserServiceTx(platformTransactionManager(dataSource()),userService);
     }
+
+     */
 
     /*
     @Bean
@@ -134,4 +137,21 @@ public class DAOFactory {
         return hello;
     }
 
+    // 다이나믹 프록시 도입 : UserService
+    @Bean
+    public UserService userService() {
+        UserServiceImpl target = new UserServiceImpl(); // 실제 서비스 구현
+
+        TransactionHandler txHandler = new TransactionHandler(
+                target,
+                "upgrade", // 트랜잭션을 적용할 메서드 이름 패턴
+                platformTransactionManager(dataSource()) // 수동으로 전달
+        );
+
+        return (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{UserService.class},
+                txHandler
+        );
+    }
 }
