@@ -17,6 +17,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 @Configuration
@@ -122,7 +123,7 @@ public class DAOFactory {
         return new HelloUppercase(hello()); // 데코레이팅 생성
     }
 
-    // 다이나믹 프록시 도입 ->
+    // 다이나믹 프록시 도입 -> 프록시 생성
     @Bean
     public Hello hello(){
         Hello hello = (Hello) Proxy.newProxyInstance(
