@@ -23,6 +23,7 @@ public class TransactionHandler implements InvocationHandler {
         this.pattern = pattern;
     }
 
+    // 원하는 로직을 추가하기 -> invoke 내부에서 탈취
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if(method.getName().startsWith(pattern)){
