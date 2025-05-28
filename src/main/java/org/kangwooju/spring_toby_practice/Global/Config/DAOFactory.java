@@ -6,6 +6,12 @@ import org.kangwooju.spring_toby_practice.domain.user.DAO.MessageDAO;
 import org.kangwooju.spring_toby_practice.domain.user.DAO.UserDAO;
 import org.kangwooju.spring_toby_practice.domain.user.Service.*;
 import org.kangwooju.spring_toby_practice.domain.user.Service.Interface.UserService;
+import org.kangwooju.spring_toby_practice.domain.user.factory.TxProxyFactoryBean;
+import org.kangwooju.spring_toby_practice.domain.user.factory.advice.TransactionAdvice;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -138,6 +144,7 @@ public class DAOFactory {
     }
 
     // 다이나믹 프록시 도입 : UserService
+
     @Bean
     public UserService userService() {
         UserServiceImpl target = new UserServiceImpl(); // 실제 서비스 구현
@@ -154,4 +161,42 @@ public class DAOFactory {
                 txHandler
         );
     }
+
+
+
+    // factoryBean 도입 -> 다이나믹 프록시 자동생성 , 이제 구현체들을 빈에 등록하지 않아도 된다. !!
+    @Bean
+    public TxProxyFactoryBean txProxyFactoryBean
+            (UserServiceTx userServiceTx,
+             PlatformTransactionManager platformTransactionManager){
+
+        return new TxProxyFactoryBean(
+                userServiceTx,
+                platformTransactionManager,
+                "upgrade",
+                UserService.class
+        );
+    }
+
+    // 어드바이스 DI
+    @Bean
+    public TransactionAdvice transactionAdvice(PlatformTransactionManager platformTransactionManager){
+        return new TransactionAdvice(platformTransactionManager);
+    }
+
+    // 포인트 컷 설정
+    @Bean
+    public Pointcut transactionPointcut(){
+        NameMatchMethodPointcut nameMatchMethodPointcut = new NameMatchMethodPointcut();
+        nameMatchMethodPointcut.setMappedName("upgrade*");
+        return nameMatchMethodPointcut;
+    }
+
+    // 어드바이저 생성 ( 어드바이저 = 어드바이스 + 포인트 컷 )
+    @Bean
+    public Advisor transactionAdvisor(Pointcut transactionPointcut,TransactionAdvice transactionAdvice){
+        return new DefaultPointcutAdvisor(transactionPointcut,transactionAdvice);
+    }
+
+
 }
