@@ -31,6 +31,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
 
+    public UserServiceImpl(DataSource dataSource,JavaMailSender javaMailSender){
+        this.dataSource = dataSource;
+        this.javaMailSender = javaMailSender;
+    }
+
 
 
     public void upgradeLevels(User user) throws Exception{
