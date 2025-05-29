@@ -220,6 +220,7 @@ public class DAOFactory {
         return new TransactionAdvice(platformTransactionManager);
     }
 
+    /*
     // 포인트 컷 설정
     // 클래스 필터를 적용한 포인트 컷 설정
     @Bean
@@ -231,11 +232,16 @@ public class DAOFactory {
         return nameMatchClassMethodPointcut;
     }
 
+     */
+
+    /*
     // 어드바이저 생성 ( 어드바이저 = 어드바이스 + 포인트 컷 )
     @Bean
     public Advisor transactionAdvisor(Pointcut transactionPointcut,TransactionAdvice transactionAdvice){
         return new DefaultPointcutAdvisor(transactionPointcut,transactionAdvice);
     }
+
+     */
 
     // 자동 프록시 생성기 등록
     @Bean
