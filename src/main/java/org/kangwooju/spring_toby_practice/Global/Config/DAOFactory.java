@@ -11,6 +11,7 @@ import org.kangwooju.spring_toby_practice.domain.user.factory.advice.Transaction
 import org.kangwooju.spring_toby_practice.domain.user.factory.pointcut.NameMatchClassMethodPointcut;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -220,28 +221,23 @@ public class DAOFactory {
         return new TransactionAdvice(platformTransactionManager);
     }
 
-    /*
+
     // 포인트 컷 설정
     // 클래스 필터를 적용한 포인트 컷 설정
     @Bean
-    public NameMatchClassMethodPointcut transactionPointcut(){
-        NameMatchClassMethodPointcut nameMatchClassMethodPointcut = new NameMatchClassMethodPointcut();
-        nameMatchClassMethodPointcut.setClassFilter(clazz -> clazz.getSimpleName().endsWith("ServiceImpl"));
-        nameMatchClassMethodPointcut.setMappedName("upgrade*");
+    public AspectJExpressionPointcut transactionPointcut(TransactionAdvice transactionAdvice){
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+        pointcut.setExpression("execution(* com.example.service.*.*(..))");
+        return pointcut;
 
-        return nameMatchClassMethodPointcut;
     }
 
-     */
 
-    /*
     // 어드바이저 생성 ( 어드바이저 = 어드바이스 + 포인트 컷 )
     @Bean
-    public Advisor transactionAdvisor(Pointcut transactionPointcut,TransactionAdvice transactionAdvice){
-        return new DefaultPointcutAdvisor(transactionPointcut,transactionAdvice);
+    public Advisor transactionAdvisor(AspectJExpressionPointcut pointcut,TransactionAdvice transactionAdvice){
+        return new DefaultPointcutAdvisor(pointcut,transactionAdvice);
     }
-
-     */
 
     // 자동 프록시 생성기 등록
     @Bean
